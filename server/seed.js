@@ -48,6 +48,22 @@ const seedUsers = async () => {
             console.log(`Successfully created ${usersToCreate.length} new users.`);
         }
 
+        // Seed Admin Account
+        const adminEmail = 'admin@charusat.edu.in';
+        const adminUser = await User.findOne({ email: adminEmail });
+        if (!adminUser) {
+            const hashedAdminPassword = await bcrypt.hash('admin123', 10);
+            await User.create({
+                name: 'System Admin',
+                email: adminEmail,
+                password: hashedAdminPassword,
+                role: 'admin'
+            });
+            console.log('Admin Account Created');
+        } else {
+            console.log('Admin Account Already Exists');
+        }
+
         console.log('Finished processing all 120 users (created or updated).');
 
         mongoose.disconnect();

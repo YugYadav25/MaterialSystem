@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 function LandingPage() {
     const navigate = useNavigate();
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, logout, user } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -41,10 +41,10 @@ function LandingPage() {
                                 {isAuthenticated ? (
                                     <>
                                         <button
-                                            onClick={() => navigate('/dashboard')}
+                                            onClick={() => navigate(user?.role === 'admin' ? '/admin' : '/dashboard')}
                                             className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-[#111816] text-sm font-bold leading-normal hover:opacity-90 transition-opacity"
                                         >
-                                            Dashboard
+                                            {user?.role === 'admin' ? 'Admin' : 'Dashboard'}
                                         </button>
                                         <button
                                             onClick={() => {
@@ -77,10 +77,10 @@ function LandingPage() {
                             <div className="flex gap-4 pt-4 border-t w-full justify-center border-[#dbe6e2] dark:border-[#2a3c36]">
                                 {isAuthenticated ? (
                                     <button
-                                        onClick={() => navigate('/dashboard')}
+                                        onClick={() => navigate(user?.role === 'admin' ? '/admin' : '/dashboard')}
                                         className="rounded-lg h-12 px-6 bg-primary text-[#111816] font-bold"
                                     >
-                                        Dashboard
+                                        {user?.role === 'admin' ? 'Admin Panel' : 'Dashboard'}
                                     </button>
                                 ) : (
                                     <button
@@ -110,10 +110,10 @@ function LandingPage() {
                                 </div>
                                 <div className="flex flex-wrap gap-4 mt-4">
                                     <button
-                                        onClick={() => navigate('/dashboard')}
+                                        onClick={() => navigate(user && user.role === 'admin' ? '/admin' : '/dashboard')}
                                         className="flex min-w-[160px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-primary text-[#111816] text-base font-bold tracking-wide shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                                     >
-                                        Submit Materials
+                                        {user && user.role === 'admin' ? 'Admin Panel' : 'Submit Materials'}
                                     </button>
                                     <button className="flex min-w-[160px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-white dark:bg-[#2a3c36] border-2 border-[#dbe6e2] dark:border-[#344a42] text-[#111816] dark:text-white text-base font-bold hover:bg-[#f6f8f7] dark:hover:bg-[#3d554c] transition-all">
                                         View All Materials
@@ -197,10 +197,10 @@ function LandingPage() {
                             </div>
                             <div className="flex flex-wrap justify-center gap-4 z-10">
                                 <button
-                                    onClick={() => navigate('/dashboard')}
+                                    onClick={() => navigate(user?.role === 'admin' ? '/admin' : '/dashboard')}
                                     className="flex min-w-[200px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-primary text-[#111816] text-base font-bold shadow-xl shadow-primary/10 hover:opacity-90 transition-all"
                                 >
-                                    Get Started Now
+                                    {user?.role === 'admin' ? 'Go to Admin Panel' : 'Submit Materials'}
                                 </button>
                                 <button className="flex min-w-[200px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-transparent border-2 border-[#aabcb5]/30 text-white text-base font-bold hover:bg-white/10 transition-all">
                                     Contact Sales

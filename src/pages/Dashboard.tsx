@@ -37,6 +37,13 @@ function Dashboard() {
     fetchStatus();
   }, []);
 
+  // Failsafe: Redirect Admin to /admin if they somehow reach here
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      navigate('/admin', { replace: true });
+    }
+  }, [user, navigate]);
+
   // Update name if user context loads later
   useEffect(() => {
     if (user) {
@@ -91,10 +98,10 @@ function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (loading || (user && user.role === 'admin')) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark text-[#111816] dark:text-white">
-        <p>Loading Dashboard...</p>
+        <p>Loading...</p>
       </div>
     )
   }

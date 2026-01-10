@@ -37,7 +37,11 @@ function AuthPage() {
             const { token, user } = response.data;
 
             login(token, user);
-            navigate('/dashboard');
+            if (user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/dashboard');
+            }
 
         } catch (err: any) {
             setError(err.response?.data?.message || 'An error occurred. Please try again.');
