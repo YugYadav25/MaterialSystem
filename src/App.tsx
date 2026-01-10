@@ -34,7 +34,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<PublicRoute><AuthPage /></PublicRoute>} />
-          <Route path="/signup" element={<PublicRoute><AuthPage /></PublicRoute>} />
+          {/* <Route path="/signup" element={<PublicRoute><AuthPage /></PublicRoute>} /> */}
 
           <Route
             path="/dashboard"

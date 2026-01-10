@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function LandingPage() {
     const navigate = useNavigate();
+    const { isAuthenticated, logout } = useAuth();
 
     return (
         <div className="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden bg-background-light dark:bg-background-dark text-[#111816] dark:text-white transition-colors duration-200">
@@ -24,18 +26,32 @@ function LandingPage() {
                             <a className="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">About</a>
                         </nav>
                         <div className="flex gap-2">
-                            <button
-                                onClick={() => navigate('/signup')}
-                                className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-[#111816] text-sm font-bold leading-normal hover:opacity-90 transition-opacity"
-                            >
-                                Sign Up
-                            </button>
-                            <button
-                                onClick={() => navigate('/login')}
-                                className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-[#f0f4f3] dark:bg-[#2a3c36] text-[#111816] dark:text-white text-sm font-bold leading-normal hover:bg-[#e0e6e4] dark:hover:bg-[#344a42] transition-colors"
-                            >
-                                Login
-                            </button>
+                            {isAuthenticated ? (
+                                <>
+                                    <button
+                                        onClick={() => navigate('/dashboard')}
+                                        className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-[#111816] text-sm font-bold leading-normal hover:opacity-90 transition-opacity"
+                                    >
+                                        Dashboard
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            logout();
+                                            navigate('/');
+                                        }}
+                                        className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-[#f0f4f3] dark:bg-[#2a3c36] text-[#111816] dark:text-white text-sm font-bold leading-normal hover:bg-[#e0e6e4] dark:hover:bg-[#344a42] transition-colors"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-[#f0f4f3] dark:bg-[#2a3c36] text-[#111816] dark:text-white text-sm font-bold leading-normal hover:bg-[#e0e6e4] dark:hover:bg-[#344a42] transition-colors"
+                                >
+                                    Login
+                                </button>
+                            )}
                         </div>
                     </div>
                 </header>

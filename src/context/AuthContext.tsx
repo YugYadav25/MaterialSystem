@@ -24,14 +24,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         if (token) {
-            if (token) {
-                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                // Optionally fetch user profile logic here if needed
-                setIsAuthenticated(true);
-            } else {
-                delete axios.defaults.headers.common['Authorization'];
-                setIsAuthenticated(false);
-            }
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            setIsAuthenticated(true);
+        } else {
+            delete axios.defaults.headers.common['Authorization'];
+            setIsAuthenticated(false);
         }
     }, [token]);
 

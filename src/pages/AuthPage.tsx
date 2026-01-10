@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-// import axios from 'axios';
+import axios from 'axios';
 
 function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -15,15 +15,15 @@ function AuthPage() {
 
     const { login } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
+    //   const location = useLocation();
 
-    useEffect(() => {
-        if (location.pathname === '/signup') {
-            setIsLogin(false);
-        } else {
-            setIsLogin(true);
-        }
-    }, [location]);
+    //   useEffect(() => {
+    //     if (location.pathname === '/signup') {
+    //       setIsLogin(false);
+    //     } else {
+    //       setIsLogin(true);
+    //     }
+    //   }, [location]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,20 +31,12 @@ function AuthPage() {
         setLoading(true);
 
         try {
-            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-            // In a real app, you would replace this with actual API endpoint
-            // For now, let's simulate a request or assume the backend is ready
-            // const response = await axios.post(endpoint, formData); 
+            const endpoint = '/api/auth/login';
+            const response = await axios.post(endpoint, formData);
 
-            // MOCKING SUCCESS behaviors for demonstration if backend isn't running on exact port yet
-            // DELETE THIS MOCK BLOCK when connecting to real backend
-            console.log(`Sending request to ${endpoint}`, formData);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+            const { token, user } = response.data;
 
-            const mockUser = { id: '123', name: formData.name || 'User', email: formData.email };
-            const mockToken = 'mock-jwt-token';
-
-            login(mockToken, mockUser);
+            login(token, user);
             navigate('/dashboard');
 
         } catch (err: any) {
@@ -66,49 +58,35 @@ function AuthPage() {
                         </svg>
                     </div>
                     <h2 className="text-2xl font-black text-[#111816] dark:text-white font-display">
-                        {isLogin ? 'Welcome Back' : 'Create Account'}
+                        Student Login
                     </h2>
                     <p className="text-[#61897c] dark:text-[#aabcb5]">
-                        {isLogin ? 'Enter your details, and let\'s get you back in.' : 'Join the central hub for unique material data.'}
+                        Enter your student credentials to access the submission portal.
                     </p>
                 </div>
 
                 {/* Form */}
                 <div className="px-8 pb-8">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                        {!isLogin && (
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-semibold text-[#111816] dark:text-white">Full Name</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="form-input w-full rounded-xl border border-[#dbe6e2] dark:border-[#2a3c36] bg-[#f6f8f7] dark:bg-[#10221c] p-3 text-base text-[#111816] dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
-                                    placeholder="John Doe"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                />
-                            </div>
-                        )}
-
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-semibold text-[#111816] dark:text-white">Email</label>
                             <input
                                 type="email"
                                 required
                                 className="form-input w-full rounded-xl border border-[#dbe6e2] dark:border-[#2a3c36] bg-[#f6f8f7] dark:bg-[#10221c] p-3 text-base text-[#111816] dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
-                                placeholder="name@example.com"
+                                placeholder="24meXXX@charusat.edu.in"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold text-[#111816] dark:text-white">Password</label>
+                            <label className="text-sm font-semibold text-[#111816] dark:text-white">Student ID</label>
                             <input
                                 type="password"
                                 required
                                 className="form-input w-full rounded-xl border border-[#dbe6e2] dark:border-[#2a3c36] bg-[#f6f8f7] dark:bg-[#10221c] p-3 text-base text-[#111816] dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
-                                placeholder="••••••••"
+                                placeholder="Enter ID (e.g. 1)"
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             />
@@ -125,23 +103,11 @@ function AuthPage() {
                             disabled={loading}
                             className="mt-2 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-[#111816] shadow-lg shadow-primary/20 hover:opacity-90 disabled:opacity-70 transition-all"
                         >
-                            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
+                            {loading ? 'Logging In...' : 'Sign In'}
                         </button>
                     </form>
 
-                    <div className="mt-8 text-center text-sm text-[#61897c] dark:text-[#aabcb5]">
-                        {isLogin ? "Don't have an account? " : "Already have an account? "}
-                        <button
-                            onClick={() => {
-                                setIsLogin(!isLogin);
-                                navigate(isLogin ? '/signup' : '/login');
-                                setError('');
-                            }}
-                            className="font-bold text-primary hover:underline hover:text-primary/80"
-                        >
-                            {isLogin ? 'Sign up' : 'Log in'}
-                        </button>
-                    </div>
+                    {/* Removed Sign up toggle */}
                 </div>
             </div>
         </div>

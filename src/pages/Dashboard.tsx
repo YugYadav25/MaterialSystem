@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [materials, setMaterials] = useState<string[]>(Array(15).fill(''));
   const [personalInfo, setPersonalInfo] = useState({
     fullName: '',
@@ -77,6 +81,24 @@ function Dashboard() {
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">inventory_2</span>
                   <h2 className="text-[#111816] dark:text-white text-xl font-bold">Material List</h2>
+                </div>
+                <div className="flex flex-1 justify-end gap-8">
+                  <div className="flex items-center gap-9">
+                    <a className="text-[#111816] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+                    <a className="text-primary text-sm font-bold leading-normal" href="#">Submissions</a>
+                    <a className="text-[#111816] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Analytics</a>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      navigate('/');
+                    }}
+                    className="flex items-center gap-2 cursor-pointer rounded-lg h-10 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-600 font-bold text-sm transition-all"
+                  >
+                    Logout
+                  </button>
+                  <div
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-primary/20"></div>
                 </div>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#61897c]">Progress: {materials.filter(m => m.length > 0).length} / 15</span>
               </div>
