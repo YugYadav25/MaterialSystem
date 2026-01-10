@@ -26,4 +26,14 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/materials', require('./routes/materials'));
 app.use('/api/admin', require('./routes/admin'));
 
+// Serve static assets in production
+const path = require('path');
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../dist')));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../dist', 'index.html'));
+    });
+}
+
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
