@@ -194,6 +194,7 @@ function LandingPage() {
                                     </div>
                                     <div className="flex flex-col items-center gap-1 text-center w-full">
                                         <h3 className="text-[#111816] dark:text-white text-lg font-bold">Yug Yadav</h3>
+                                        <p className="text-[#61897c] dark:text-[#aabcb5] text-xs font-medium">B.Tech IT 2024 - 2028</p>
                                         <a href="https://www.linkedin.com/in/yug-yadav-b27366248/" target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-[#0077b5] text-white rounded-lg hover:opacity-90 transition-opacity text-xs font-bold w-full">
                                             <span>Connect</span>
                                         </a>
@@ -207,6 +208,7 @@ function LandingPage() {
                                     </div>
                                     <div className="flex flex-col items-center gap-1 text-center w-full">
                                         <h3 className="text-[#111816] dark:text-white text-lg font-bold">Vishwesh Patel</h3>
+                                        <p className="text-[#61897c] dark:text-[#aabcb5] text-xs font-medium">B.Tech ME 2024 - 2028</p>
                                         <a href="https://www.linkedin.com/in/vishwesh-patel-589022294/" target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-[#0077b5] text-white rounded-lg hover:opacity-90 transition-opacity text-xs font-bold w-full">
                                             <span>Connect</span>
                                         </a>
