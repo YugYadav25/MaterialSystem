@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 function AuthPage() {
-    const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
