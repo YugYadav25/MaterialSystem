@@ -23,5 +23,6 @@ if (!MONGO_URI) {
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/materials', require('./routes/materials'));
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

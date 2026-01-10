@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
     hasSubmitted: {
         type: Boolean,
         default: false
+    },
+    materials: {
+        type: [String],
+        default: []
     }
 }, { timestamps: true });
 
