@@ -1,2 +1,2 @@
 // Redirect to ../server/index.js
-require('../server/index.js');
+import '../server/index.js';
