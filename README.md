@@ -4,6 +4,10 @@ A full-stack web application designed to help Mechanical Engineering students ma
 
 > **Note:** This project was exclusively built for **Mechanical Engineering Students** .
 
+
+<img width="1864" height="881" alt="image" src="https://github.com/user-attachments/assets/32bb243e-0c2d-45bd-92a1-99d660ba6443" />
+
+
 ## 🚀 Features
 
 -   **Material Submission**: Students can submit details about unique engineering materials.
