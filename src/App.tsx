@@ -1,4 +1,5 @@
 import React from 'react';
+import { Analytics } from "@vercel/analytics/react"
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
@@ -75,6 +76,7 @@ function App() {
           />
         </Routes>
       </AuthProvider>
+      <Analytics />
     </Router>
   );
 }
