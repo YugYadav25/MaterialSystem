@@ -35,7 +35,7 @@ function LandingPage() {
                             <nav className="flex items-center gap-9">
                                 <a className="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Home</a>
                                 <a className="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Materials</a>
-                                <a className="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">About</a>
+                                <a className="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#about">About</a>
                             </nav>
                             <div className="flex gap-2">
                                 {isAuthenticated ? (
@@ -73,7 +73,7 @@ function LandingPage() {
                         <div className="md:hidden flex flex-col items-center gap-4 py-6 border-t border-[#dbe6e2] dark:border-[#2a3c36] bg-white dark:bg-background-dark animate-in slide-in-from-top-2">
                             <a className="text-base font-medium leading-normal hover:text-primary transition-colors" href="#">Home</a>
                             <a className="text-base font-medium leading-normal hover:text-primary transition-colors" href="#">Materials</a>
-                            <a className="text-base font-medium leading-normal hover:text-primary transition-colors" href="#">About</a>
+                            <a className="text-base font-medium leading-normal hover:text-primary transition-colors" href="#about">About</a>
                             <div className="flex gap-4 pt-4 border-t w-full justify-center border-[#dbe6e2] dark:border-[#2a3c36]">
                                 {isAuthenticated ? (
                                     <button
@@ -182,6 +182,40 @@ function LandingPage() {
                             </div>
                         </div>
                     </section>
+                    {/* About Section */}
+                    <section id="about" className="max-w-[1200px] mx-auto w-full px-4 md:px-10 py-12 bg-white dark:bg-background-dark scroll-mt-20">
+                        <div className="flex flex-col gap-6 items-center">
+                            <h2 className="text-[#111816] dark:text-white text-2xl font-black leading-tight tracking-[-0.015em] font-display">Creators</h2>
+                            <div className="flex flex-wrap justify-center gap-6 w-full max-w-[800px]">
+                                {/* User Card */}
+                                <div className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[#dbe6e2] dark:border-[#2a3c36] bg-[#f8fcfb] dark:bg-[#152a23] shadow-sm w-full sm:w-[280px]">
+                                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xl font-bold">
+                                        YY
+                                    </div>
+                                    <div className="flex flex-col items-center gap-1 text-center w-full">
+                                        <h3 className="text-[#111816] dark:text-white text-lg font-bold">Yug Yadav</h3>
+                                        <a href="https://www.linkedin.com/in/yug-yadav-b27366248/" target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-[#0077b5] text-white rounded-lg hover:opacity-90 transition-opacity text-xs font-bold w-full">
+                                            <span>Connect</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {/* Friend Card (Vishwesh) */}
+                                <div className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-[#dbe6e2] dark:border-[#2a3c36] bg-[#f8fcfb] dark:bg-[#152a23] shadow-sm w-full sm:w-[280px]">
+                                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xl font-bold">
+                                        VP
+                                    </div>
+                                    <div className="flex flex-col items-center gap-1 text-center w-full">
+                                        <h3 className="text-[#111816] dark:text-white text-lg font-bold">Vishwesh Patel</h3>
+                                        <a href="https://www.linkedin.com/in/vishwesh-patel-589022294/" target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-[#0077b5] text-white rounded-lg hover:opacity-90 transition-opacity text-xs font-bold w-full">
+                                            <span>Connect</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
 
                     {/* CTA Section */}
                     <section className="max-w-[1200px] mx-auto w-full px-4 md:px-10 py-20 mb-20">
