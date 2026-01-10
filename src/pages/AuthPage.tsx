@@ -14,15 +14,7 @@ function AuthPage() {
 
     const { login } = useAuth();
     const navigate = useNavigate();
-    //   const location = useLocation();
 
-    //   useEffect(() => {
-    //     if (location.pathname === '/signup') {
-    //       setIsLogin(false);
-    //     } else {
-    //       setIsLogin(true);
-    //     }
-    //   }, [location]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
