@@ -18,6 +18,28 @@ function Dashboard() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [searchResult, setSearchResult] = useState<{ matches: string[], query: string } | null>(null);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    setSearchResult(null);
+    try {
+      const res = await axios.get(`/api/materials/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchResult({
+        matches: res.data.matches,
+        query: searchQuery
+      });
+    } catch (err) {
+      console.error("Search failed", err);
+    } finally {
+      setSearching(false);
+    }
+  };
+
   // Fetch existing status on mount
   useEffect(() => {
     const fetchStatus = async () => {
@@ -174,6 +196,69 @@ function Dashboard() {
                     disabled
                   />
                 </label>
+              </div>
+            </div>
+
+            {/* Section: Material Search */}
+            <div className="p-4 md:p-8 border-b border-[#f0f4f3] dark:border-[#2a3c36] bg-blue-50/50 dark:bg-blue-900/10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">search</span>
+                  <h2 className="text-[#111816] dark:text-white text-xl font-bold">Check Availability</h2>
+                </div>
+                <p className="text-sm text-[#61897c] dark:text-[#a0c4b8]">Check if a material has already been submitted.</p>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-2">
+                  <input
+                    className="form-input flex-1 rounded-lg border-[#dbe6e2] dark:border-[#2a3c36] bg-white dark:bg-[#10221c] dark:text-white h-12 px-4 text-base focus:ring-primary focus:border-primary"
+                    placeholder="Type material name (e.g. Aluminum 6061)"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                  <button
+                    onClick={handleSearch}
+                    disabled={searching || !searchQuery.trim()}
+                    className="flex items-center justify-center gap-2 rounded-lg px-6 bg-primary text-[#10221c] font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all"
+                  >
+                    {searching ? (
+                      <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    ) : (
+                      <span className="material-symbols-outlined">search</span>
+                    )}
+                    <span className="hidden md:inline">Check</span>
+                  </button>
+                </div>
+
+                {/* Search Results */}
+                {searchResult && (
+                  <div className={`p-4 rounded-lg border ${searchResult.matches.length > 0
+                    ? 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-900/30 dark:text-red-200'
+                    : 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-900/30 dark:text-green-200'
+                    }`}>
+                    <div className="flex items-start gap-3">
+                      <span className="material-symbols-outlined">
+                        {searchResult.matches.length > 0 ? 'cancel' : 'check_circle'}
+                      </span>
+                      <div>
+                        <p className="font-bold">
+                          {searchResult.matches.length > 0
+                            ? 'Material(s) found!'
+                            : 'Material appears to be available!'
+                          }
+                        </p>
+                        <p className="text-sm mt-1">
+                          {searchResult.matches.length > 0
+                            ? `The following materials have already been submitted: ${searchResult.matches.join(', ')}`
+                            : `No matches found for "${searchResult.query}". It seems safe to use.`
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

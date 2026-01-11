@@ -20,6 +20,47 @@ const auth = (req, res, next) => {
     }
 };
 
+// GET /api/materials/search - Check for existing materials
+router.get('/search', auth, async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q || q.trim() === '') {
+            return res.json({ matches: [] });
+        }
+
+        const escapeRegex = (string) => {
+            return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        };
+
+        const safeQuery = escapeRegex(q.trim());
+
+        // Case-insensitive regex for partial match
+        const regex = new RegExp(safeQuery, 'i');
+
+        // Find users who have at least one matching material
+        // We use boolean matching first to filter docs, then refine
+        const users = await User.find({
+            materials: { $in: [regex] }
+        }).select('materials');
+
+        // Extract the actual matching strings
+        const matches = new Set();
+        users.forEach(user => {
+            user.materials.forEach(mat => {
+                if (regex.test(mat)) {
+                    matches.add(mat);
+                }
+            });
+        });
+
+        res.json({ matches: Array.from(matches) });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // GET /api/materials - Get current user's materials
 router.get('/', auth, async (req, res) => {
     try {
