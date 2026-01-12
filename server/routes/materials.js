@@ -28,29 +28,25 @@ router.get('/search', auth, async (req, res) => {
             return res.json({ matches: [] });
         }
 
-        const escapeRegex = (string) => {
-            return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        };
+        // Normalize query: remove ALL spaces and convert to lowercase
+        const normalize = (str) => str.replace(/\s+/g, '').toLowerCase();
+        const normalizedQuery = normalize(q);
 
-        const safeQuery = escapeRegex(q.trim());
+        // Fetch ALL materials from DB
+        const users = await User.find({ hasSubmitted: true }).select('materials');
 
-        // Case-insensitive regex for partial match
-        const regex = new RegExp(safeQuery, 'i');
-
-        // Find users who have at least one matching material
-        // We use boolean matching first to filter docs, then refine
-        const users = await User.find({
-            materials: { $in: [regex] }
-        }).select('materials');
-
-        // Extract the actual matching strings
         const matches = new Set();
+
         users.forEach(user => {
-            user.materials.forEach(mat => {
-                if (regex.test(mat)) {
-                    matches.add(mat);
-                }
-            });
+            if (user.materials && Array.isArray(user.materials)) {
+                user.materials.forEach(mat => {
+                    const normalizedMat = normalize(mat);
+
+                    if (normalizedMat.includes(normalizedQuery)) {
+                        matches.add(mat);
+                    }
+                });
+            }
         });
 
         res.json({ matches: Array.from(matches) });

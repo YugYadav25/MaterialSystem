@@ -115,9 +115,7 @@ function LandingPage() {
                                     >
                                         {user && user.role === 'admin' ? 'Admin Panel' : 'Submit Materials'}
                                     </button>
-                                    <button className="flex min-w-[160px] cursor-pointer items-center justify-center rounded-xl h-14 px-8 bg-white dark:bg-[#2a3c36] border-2 border-[#dbe6e2] dark:border-[#344a42] text-[#111816] dark:text-white text-base font-bold hover:bg-[#f6f8f7] dark:hover:bg-[#3d554c] transition-all">
-                                        View All Materials
-                                    </button>
+
                                 </div>
                             </div>
                             <div className="lg:w-1/2 w-full">
