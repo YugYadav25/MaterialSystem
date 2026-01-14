@@ -109,4 +109,165 @@ router.put('/users/:id', adminAuth, async (req, res) => {
     }
 });
 
+// POST /api/admin/upload-materials
+// Upload and process Excel file for bulk material updates
+const multer = require('multer');
+const xlsx = require('xlsx');
+
+// Multer setup for memory storage
+const storage = multer.memoryStorage();
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.includes("excel") || file.mimetype.includes("spreadsheetml")) {
+            cb(null, true);
+        } else {
+            cb(new Error("Please upload only excel file."), false);
+        }
+    }
+});
+
+router.post('/upload-materials', adminAuth, upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded." });
+        }
+
+        // Parse buffer with xlsx
+        const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Convert to JSON (array of arrays or objects)
+        // Assume Header: Email, Material 1, Material 2 ...
+        const jsonData = xlsx.utils.sheet_to_json(sheet, { header: 1 }); // Header: 1 gives array of arrays
+
+        if (jsonData.length < 2) {
+            return res.status(400).json({ message: "File appears empty or missing header." });
+        }
+
+        // Rows starting from index 1 (skip header index 0)
+        let successCount = 0;
+        let errors = [];
+
+        // We process sequentially to handle potential uniqueness checks if needed, 
+        // though bulk processing implies trust in the admin's file.
+        // For safety, we will still validate simple constraints.
+
+        for (let i = 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            // Expecting: [Email, M1, M2, ... M15]
+            // Email is at row[0]
+            const email = row[0];
+
+            if (!email) continue; // Skip empty rows
+
+            // Materials are from index 1 to 15
+            const materials = row.slice(1, 16).map(m => m ? String(m).trim() : "");
+
+            // Check if we have 15 materials
+            if (materials.length < 15) {
+                // Pad with empty strings if missing, but better to flag error?
+                // Let's assume we proceed but maybe flag if critical
+                while (materials.length < 15) materials.push("");
+            }
+
+            // Find user by email
+            const user = await User.findOne({ email: email });
+            if (!user) {
+                errors.push(`Row ${i + 1}: User with email ${email} not found.`);
+                continue;
+            }
+
+            // Update user
+            user.materials = materials;
+
+            // Check if they are valid (non-empty) to mark submitted?
+            // If admin uploads empty strings, we respect that.
+            // If at least one material is present, we can say submitted = true? 
+            // Or only if ALL 15 present? Implementation plan said "15 materials".
+            // Let's check for non-empty.
+            const nonEmptyCount = materials.filter(m => m !== "").length;
+
+            if (nonEmptyCount === 15) {
+                user.hasSubmitted = true;
+            }
+            // If admin uploads partial, we might not set hasSubmitted=true, but we still save data.
+
+            await user.save();
+            successCount++;
+        }
+
+        res.json({
+            message: `Processed ${jsonData.length - 1} rows. Updated ${successCount} users.`,
+            errors: errors
+        });
+
+    } catch (err) {
+        console.error("Excel Upload Error:", err);
+        res.status(500).json({ message: "Server Error during processing." });
+    }
+});
+
+// GET /api/admin/download-excel
+// Download all student data as Excel
+router.get('/download-excel', adminAuth, async (req, res) => {
+    try {
+        const users = await User.find({ role: 'student' }).sort({ email: 1 });
+
+        const data = users.map(user => {
+            const row = {
+                'Student Name': user.name,
+                'Email ID': user.email,
+                'Status': user.hasSubmitted ? 'Submitted' : 'Pending'
+            };
+
+            // Add materials 1-15
+            for (let i = 0; i < 15; i++) {
+                row[`Material ${i + 1}`] = user.materials[i] || '';
+            }
+
+            return row;
+        });
+
+        const workbook = xlsx.utils.book_new();
+        const worksheet = xlsx.utils.json_to_sheet(data);
+
+        // Adjust column widths purely for aesthetics (optional but nice)
+        const wscols = [
+            { wch: 20 }, // Name
+            { wch: 30 }, // Email
+            { wch: 10 }, // Status
+            { wch: 15 }, // Mat 1
+            { wch: 15 }, // Mat 2
+            // ... apply for rest if needed, but manual is fine
+        ];
+        worksheet['!cols'] = wscols;
+
+        xlsx.utils.book_append_sheet(workbook, worksheet, 'Students Data');
+
+        const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+        console.log(`Generating Excel for ${users.length} students. Size: ${buffer.length} bytes`);
+
+        // DEBUG: Write to disk to verify generation
+        try {
+            const fs = require('fs');
+            fs.writeFileSync('server_debug.xlsx', buffer);
+            console.log("Saved server_debug.xlsx to disk.");
+        } catch (e) { console.error("Write debug error", e); }
+
+        res.setHeader('Content-Disposition', 'attachment; filename="Student_Data_Export.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Length', buffer.length);
+        res.end(buffer);
+
+    } catch (err) {
+        console.error("Excel Download Error:", err);
+        if (!res.headersSent) {
+            res.status(500).json({ message: "Server Error during Excel generation." });
+        }
+    }
+});
+
 module.exports = router;

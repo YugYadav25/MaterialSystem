@@ -43,6 +43,48 @@ function AdminPage() {
         }
     };
 
+
+
+    const handleDownloadExcel = async () => {
+        try {
+            // AuthContext uses sessionStorage
+            const authToken = sessionStorage.getItem('token');
+
+            if (!authToken) {
+                throw new Error("No authentication token found. Please relogin.");
+            }
+
+            const response = await fetch('/api/admin/download-excel', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                try {
+                    const json = JSON.parse(text);
+                    throw new Error(json.message || "Download failed");
+                } catch (e) {
+                    throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+                }
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Student_Data_Export.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (err: any) {
+            console.error("Download failed", err);
+            setMessage({ type: 'error', text: err.message || "Failed to download Excel file." });
+        }
+    };
+
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value.toLowerCase());
     };
@@ -167,16 +209,28 @@ function AdminPage() {
                     </div>
                 </div>
 
-                {/* Search Bar */}
-                <div className="relative mb-8">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#61897c] text-xl">search</span>
-                    <input
-                        type="text"
-                        placeholder="🔍 Search by Student Name, Email, or Material..."
-                        className="w-full pl-12 pr-4 py-4 rounded-xl border border-[#e1e4e8] bg-white text-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm transition-all"
-                        value={searchTerm}
-                        onChange={handleSearch}
-                    />
+                {/* Search & Actions Bar */}
+                <div className="flex flex-col md:flex-row gap-4 mb-8 justify-between items-center">
+                    <div className="relative w-full md:w-2/3">
+                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#61897c] text-xl">search</span>
+                        <input
+                            type="text"
+                            placeholder="🔍 Search by Student Name, Email, or Material..."
+                            className="w-full pl-12 pr-4 py-4 rounded-xl border border-[#e1e4e8] bg-white text-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm transition-all"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                    </div>
+
+                    <div className="w-full md:w-auto flex gap-3">
+                        <button
+                            onClick={handleDownloadExcel}
+                            className="flex-1 md:flex-none px-6 py-4 rounded-xl bg-[#0f9d58] text-white font-bold text-base shadow-md hover:bg-[#0b8043] transition-colors flex items-center justify-center gap-2"
+                        >
+                            <span className="material-symbols-outlined">download</span>
+                            Download Data
+                        </button>
+                    </div>
                 </div>
 
                 {/* Table Section */}
