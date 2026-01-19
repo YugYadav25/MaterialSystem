@@ -23,6 +23,7 @@ function AdminPage() {
     const [editName, setEditName] = useState('');
     const [editEmail, setEditEmail] = useState('');
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [isDownloading, setIsDownloading] = useState(false);
 
     useEffect(() => {
         if (user && user.role !== 'admin') {
@@ -47,6 +48,7 @@ function AdminPage() {
 
     const handleDownloadExcel = async () => {
         try {
+            setIsDownloading(true);
             // AuthContext uses sessionStorage
             const authToken = sessionStorage.getItem('token');
 
@@ -82,6 +84,8 @@ function AdminPage() {
         } catch (err: any) {
             console.error("Download failed", err);
             setMessage({ type: 'error', text: err.message || "Failed to download Excel file." });
+        } finally {
+            setIsDownloading(false);
         }
     };
 
@@ -225,10 +229,23 @@ function AdminPage() {
                     <div className="w-full md:w-auto flex gap-3">
                         <button
                             onClick={handleDownloadExcel}
-                            className="flex-1 md:flex-none px-6 py-4 rounded-xl bg-[#0f9d58] text-white font-bold text-base shadow-md hover:bg-[#0b8043] transition-colors flex items-center justify-center gap-2"
+                            disabled={isDownloading}
+                            className={`flex-1 md:flex-none px-6 py-4 rounded-xl text-white font-bold text-base shadow-md transition-colors flex items-center justify-center gap-2 ${isDownloading
+                                ? 'bg-[#0b8043] cursor-wait opacity-80'
+                                : 'bg-[#0f9d58] hover:bg-[#0b8043]'
+                                }`}
                         >
-                            <span className="material-symbols-outlined">download</span>
-                            Download Data
+                            {isDownloading ? (
+                                <>
+                                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                    Downloading...
+                                </>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined">download</span>
+                                    Download Data
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

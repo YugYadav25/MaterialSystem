@@ -223,8 +223,9 @@ router.get('/download-excel', adminAuth, async (req, res) => {
             };
 
             // Add materials 1-15
+            const userMaterials = user.materials || [];
             for (let i = 0; i < 15; i++) {
-                row[`Material ${i + 1}`] = user.materials[i] || '';
+                row[`Material ${i + 1}`] = userMaterials[i] || '';
             }
 
             return row;
@@ -233,14 +234,11 @@ router.get('/download-excel', adminAuth, async (req, res) => {
         const workbook = xlsx.utils.book_new();
         const worksheet = xlsx.utils.json_to_sheet(data);
 
-        // Adjust column widths purely for aesthetics (optional but nice)
+        // Adjust column widths
         const wscols = [
             { wch: 20 }, // Name
             { wch: 30 }, // Email
             { wch: 10 }, // Status
-            { wch: 15 }, // Mat 1
-            { wch: 15 }, // Mat 2
-            // ... apply for rest if needed, but manual is fine
         ];
         worksheet['!cols'] = wscols;
 
@@ -250,17 +248,12 @@ router.get('/download-excel', adminAuth, async (req, res) => {
 
         console.log(`Generating Excel for ${users.length} students. Size: ${buffer.length} bytes`);
 
-        // DEBUG: Write to disk to verify generation
-        try {
-            const fs = require('fs');
-            fs.writeFileSync('server_debug.xlsx', buffer);
-            console.log("Saved server_debug.xlsx to disk.");
-        } catch (e) { console.error("Write debug error", e); }
-
         res.setHeader('Content-Disposition', 'attachment; filename="Student_Data_Export.xlsx"');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Length', buffer.length);
-        res.end(buffer);
+
+        // Use res.send for buffer
+        res.send(buffer);
 
     } catch (err) {
         console.error("Excel Download Error:", err);
