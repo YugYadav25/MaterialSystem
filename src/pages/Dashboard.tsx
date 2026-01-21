@@ -77,13 +77,51 @@ function Dashboard() {
     }
   }, [user]);
 
+  const [isEditing, setIsEditing] = useState(false);
+
   // Helper to update material at index
   const updateMaterial = (index: number, value: string) => {
-    if (hasSubmitted) return; // Prevent edits if submitted
+    if (hasSubmitted && !isEditing) return; // Prevent edits if submitted and not editing
     const newMaterials = [...materials];
     newMaterials[index] = value;
     setMaterials(newMaterials);
     setError('');
+  };
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    // Reset error when toggling
+    setError('');
+  };
+
+  const handleUpdate = async () => {
+    setError('');
+    setSuccess('');
+    setSubmitting(true);
+
+    if (materials.some(m => !m.trim())) {
+      setError('Please fill in all 15 material fields.');
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await axios.put('/api/materials', { materials });
+      setSuccess('Materials updated successfully!');
+      setMaterials(res.data.materials);
+      setIsEditing(false); // Lock again
+      window.scrollTo(0, 0);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Update failed.';
+      if (err.response?.data?.duplicates) {
+        setError(`${msg} Duplicates: ${err.response.data.duplicates.join(', ')}`);
+      } else {
+        setError(msg);
+      }
+      window.scrollTo(0, 0);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -112,7 +150,11 @@ function Dashboard() {
       window.scrollTo(0, 0);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Submission failed. Please try again.';
-      setError(msg);
+      if (err.response?.data?.duplicates) {
+        setError(`${msg} Duplicates: ${err.response.data.duplicates.join(', ')}`);
+      } else {
+        setError(msg);
+      }
       // Scroll to top to see error
       window.scrollTo(0, 0);
     } finally {
@@ -143,10 +185,16 @@ function Dashboard() {
                   ? "Materials locked and saved."
                   : "Register your 15 unique materials."
                 }
-                {!hasSubmitted && <span className="font-semibold text-primary hidden md:inline"> Only 1 submission is allowed per user.</span>}
               </p>
             </div>
-
+            {hasSubmitted && (
+              <button
+                onClick={handleEditToggle}
+                className="px-4 py-2 rounded-lg bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors"
+              >
+                {isEditing ? 'Cancel Editing' : 'Edit Materials'}
+              </button>
+            )}
           </div>
 
           {/* Alerts */}
@@ -299,7 +347,7 @@ function Dashboard() {
                               placeholder="Enter material name"
                               value={material}
                               onChange={(e) => updateMaterial(actualIndex, e.target.value)}
-                              disabled={hasSubmitted}
+                              disabled={hasSubmitted && !isEditing}
                             />
                           </div>
                         </div>
@@ -324,7 +372,7 @@ function Dashboard() {
                               placeholder="Enter material name"
                               value={material}
                               onChange={(e) => updateMaterial(actualIndex, e.target.value)}
-                              disabled={hasSubmitted}
+                              disabled={hasSubmitted && !isEditing}
                             />
                           </div>
                         </div>
@@ -336,27 +384,41 @@ function Dashboard() {
             </div>
 
             {/* Footer Action Area */}
-            {!hasSubmitted && (
+            {(!hasSubmitted || isEditing) && (
               <div className="p-8 border-t border-[#f0f4f3] dark:border-[#2a3c36] flex flex-col items-center gap-6">
-                <div className="flex items-start gap-3 w-full max-w-lg">
-                  <input
-                    className="mt-1 rounded border-[#dbe6e2] text-primary focus:ring-primary"
-                    id="confirm"
-                    type="checkbox"
-                    checked={confirmed}
-                    onChange={(e) => setConfirmed(e.target.checked)}
-                  />
-                  <label className="text-sm text-[#61897c] dark:text-[#a0c4b8]" htmlFor="confirm">
-                    I confirm that all materials listed are unique and I understand that I can only submit this form once.
-                  </label>
-                </div>
-                <button
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  className="flex w-full max-w-lg items-center justify-center gap-2 rounded-xl h-14 bg-primary text-[#10221c] text-lg font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed">
-                  <span>{submitting ? 'Submitting...' : 'Submit Materials'}</span>
-                  {!submitting && <span className="material-symbols-outlined">send</span>}
-                </button>
+                {!hasSubmitted && (
+                  <div className="flex items-start gap-3 w-full max-w-lg">
+                    <input
+                      className="mt-1 rounded border-[#dbe6e2] text-primary focus:ring-primary"
+                      id="confirm"
+                      type="checkbox"
+                      checked={confirmed}
+                      onChange={(e) => setConfirmed(e.target.checked)}
+                    />
+                    <label className="text-sm text-[#61897c] dark:text-[#a0c4b8]" htmlFor="confirm">
+                      I confirm that all materials listed are unique and I understand that I can only submit this form once.
+                    </label>
+                  </div>
+                )}
+
+                {isEditing ? (
+                  <button
+                    onClick={handleUpdate}
+                    disabled={submitting}
+                    className="flex w-full max-w-lg items-center justify-center gap-2 rounded-xl h-14 bg-blue-600 text-white text-lg font-bold hover:bg-blue-700 transition-all shadow-lg items-center disabled:opacity-70 disabled:cursor-not-allowed">
+                    <span>{submitting ? 'Updating...' : 'Update Materials'}</span>
+                    {!submitting && <span className="material-symbols-outlined">save</span>}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="flex w-full max-w-lg items-center justify-center gap-2 rounded-xl h-14 bg-primary text-[#10221c] text-lg font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <span>{submitting ? 'Submitting...' : 'Submit Materials'}</span>
+                    {!submitting && <span className="material-symbols-outlined">send</span>}
+                  </button>
+                )}
+
                 <p className="text-xs text-[#61897c] dark:text-[#a0c4b8] text-center">
                   By clicking submit, you agree to our Material Management Terms & Services.
                 </p>

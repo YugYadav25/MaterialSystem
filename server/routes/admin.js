@@ -219,7 +219,8 @@ router.get('/download-excel', adminAuth, async (req, res) => {
             const row = {
                 'Student Name': user.name,
                 'Email ID': user.email,
-                'Status': user.hasSubmitted ? 'Submitted' : 'Pending'
+                'Status': user.hasSubmitted ? 'Submitted' : 'Pending',
+                'Last Updated': user.materialsUpdatedAt ? new Date(user.materialsUpdatedAt).toLocaleString() : ''
             };
 
             // Add materials 1-15
@@ -239,6 +240,7 @@ router.get('/download-excel', adminAuth, async (req, res) => {
             { wch: 20 }, // Name
             { wch: 30 }, // Email
             { wch: 10 }, // Status
+            { wch: 20 }, // Last Updated
         ];
         worksheet['!cols'] = wscols;
 

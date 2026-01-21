@@ -9,6 +9,7 @@ interface User {
     email: string;
     hasSubmitted: boolean;
     materials: string[];
+    materialsUpdatedAt?: string; // ISO date string
 }
 
 function AdminPage() {
@@ -258,6 +259,7 @@ function AdminPage() {
                                 <tr className="bg-[#f1f3f4] text-xs font-bold uppercase text-[#5f6368] tracking-wider border-b border-[#e1e4e8]">
                                     <th className="p-5">Student Name</th>
                                     <th className="p-5">Email ID</th>
+                                    <th className="p-5">Last Updated</th>
                                     <th className="p-5">Materials</th>
                                     <th className="p-5">Actions</th>
                                 </tr>
@@ -268,6 +270,12 @@ function AdminPage() {
                                         <tr key={user._id} className="hover:bg-[#fafafa] transition-colors group">
                                             <td className="p-5 font-medium text-[#202124]">{user.name}</td>
                                             <td className="p-5 text-sm text-[#5f6368] font-mono">{user.email}</td>
+                                            <td className="p-5 text-sm text-[#5f6368]">
+                                                {user.materialsUpdatedAt
+                                                    ? new Date(user.materialsUpdatedAt).toLocaleString()
+                                                    : <span className="text-gray-400">-</span>
+                                                }
+                                            </td>
                                             <td className="p-5">
                                                 {user.hasSubmitted ? (
                                                     <button
@@ -294,7 +302,7 @@ function AdminPage() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={4} className="p-10 text-center text-[#5f6368]">
+                                        <td colSpan={5} className="p-10 text-center text-[#5f6368]">
                                             No students found matching your search.
                                         </td>
                                     </tr>

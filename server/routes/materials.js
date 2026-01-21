@@ -65,7 +65,8 @@ router.get('/', auth, async (req, res) => {
 
         res.json({
             hasSubmitted: user.hasSubmitted,
-            materials: user.materials
+            materials: user.materials,
+            materialsUpdatedAt: user.materialsUpdatedAt
         });
     } catch (err) {
         console.error(err.message);
@@ -157,3 +158,66 @@ router.post('/', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+// PUT /api/materials - Update existing materials
+router.put('/', auth, async (req, res) => {
+    try {
+        const { materials } = req.body;
+
+        // 1. Basic Validation
+        if (!materials || !Array.isArray(materials) || materials.length !== 15) {
+            return res.status(400).json({ message: 'You must submit exactly 15 materials.' });
+        }
+
+        if (materials.some(m => !m || m.trim() === '')) {
+            return res.status(400).json({ message: 'All 15 material fields must be filled.' });
+        }
+
+        const normalizedMaterials = materials.map(m => m.trim());
+        const uniqueSet = new Set(normalizedMaterials.map(m => m.toLowerCase()));
+        if (uniqueSet.size !== 15) {
+            return res.status(400).json({ message: 'Your list contains duplicate materials. Please ensure all 15 are unique.' });
+        }
+
+        // 2. Database Uniqueness Check (Excluding current user)
+        const existingUsers = await User.find({
+            _id: { $ne: req.user.id }, // Exclude self
+            materials: {
+                $in: normalizedMaterials.map(m => new RegExp(`^${m}$`, 'i'))
+            }
+        });
+
+        if (existingUsers.length > 0) {
+            const duplicates = [];
+            for (const newUserMat of normalizedMaterials) {
+                for (const existingUser of existingUsers) {
+                    if (existingUser.materials.some(dbMat => dbMat.toLowerCase() === newUserMat.toLowerCase())) {
+                        duplicates.push(newUserMat);
+                        break;
+                    }
+                }
+            }
+            if (duplicates.length > 0) {
+                return res.status(400).json({
+                    message: `The following materials are already claimed by other students: ${duplicates.join(', ')}`,
+                    duplicates
+                });
+            }
+        }
+
+        // 3. Update User
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.materials = normalizedMaterials;
+        user.materialsUpdatedAt = new Date(); // Update timestamp
+        // user.hasSubmitted remains true
+        await user.save();
+
+        res.json({ message: 'Materials updated successfully!', materials: user.materials, materialsUpdatedAt: user.materialsUpdatedAt });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});

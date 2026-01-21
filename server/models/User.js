@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     materials: {
         type: [String],
         default: []
+    },
+    materialsUpdatedAt: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 
